@@ -2,6 +2,9 @@ import os
 from enum import Enum
 from typing import Dict
 
+import docx
+from simplify_docx import simplify
+
 import tiktoken
 
 
@@ -71,3 +74,14 @@ def get_openai_key() -> str | None:
             with open(f"{user_path}/.secrets", "w") as f:
                 f.write(f"{OPENAI_ENV_KEY}={key}")
     return key
+
+
+def read_docx(filepath: str) -> str:
+    """Read a docx file and return a string."""
+    doc = docx.Document(filepath)
+
+    out_str = ""
+    for paragraph in doc.paragraphs:
+        out_str += paragraph.text + "\n"
+
+    return out_str

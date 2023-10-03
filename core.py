@@ -108,7 +108,7 @@ class OpenAIWrapper:
 
         self.history += messages + [response.message]
 
-        print("[call_chatgpt]")
+        print(f"[calling chatgpt, model: {self.model_name.value}]")
         response.print_cost_breakdown()
 
         return response
