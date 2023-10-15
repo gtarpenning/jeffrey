@@ -20,9 +20,7 @@ Report created by Jeffrey-v0 and ChatGPT. Jeffrey-v0 is a psychiatrist assistant
 header_prompt = """
     The following is a properly formatted header for a patient report. \
 
-    # Psychiatric History Form
-
-    ## Demographic Information
+    ### Demographic Information
 
     William Jeffery is a 45-year-old, divorced, Caucasian, other, East Indian, male.
 
@@ -77,9 +75,9 @@ def robot_large(file_path: Any, test: bool = False):
 
     # truncate intake form for testing
     if test:
-        intake_form = intake_form[:500]
+        intake_form = intake_form[:1000]
 
-    markdown_str = ""
+    markdown_str = "# Psychiatric History Report\n"
 
     # construct header from intake form first section
     r = bot.call_chatgpt(messages=[

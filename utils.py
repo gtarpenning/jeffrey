@@ -103,6 +103,4 @@ def dump_output(markdown: str, bot_name: str, version: str) -> Tuple[str, str]:
     with open(f"./output/md/{name}.md", "w") as f:
         f.write(markdown)
 
-    subprocess.run(["mdpdf", "-o", f"./output/pdf/{name}.pdf", f"./output/md/{name}.md"])
-
     return f"./output/md/{name}.md", f"./output/pdf/{name}.pdf"
