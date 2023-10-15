@@ -75,10 +75,13 @@ def get_openai_key() -> Union[str, None]:
     if not key:
         # try read from secrets file
         user_path = os.path.expanduser('~')
-        secrets = open(f"{user_path}/.secrets").read()
-        for line in secrets.split("\n"):
-            if OPENAI_ENV_KEY in line:
-                key = line.split(f"{OPENAI_ENV_KEY}=")[1].replace("\"", "")
+        if os.path.exists(f"{user_path}/.secrets"):
+            secrets = open(f"{user_path}/.secrets").read()
+            for line in secrets.split("\n"):
+                if OPENAI_ENV_KEY in line:
+                    key = line.split(f"{OPENAI_ENV_KEY}=")[1].replace("\"", "")
+    if not key:
+        logging.log(logging.ERROR, "No openai key found in environment or secrets file")
     return key
 
 
