@@ -1,6 +1,6 @@
 import os
 from enum import Enum
-from typing import Dict
+from typing import Dict, Any, Tuple, Union
 
 import docx
 from simplify_docx import simplify
@@ -81,7 +81,7 @@ def get_openai_key() -> str | None:
     return key
 
 
-def read_docx(filepath: str) -> str:
+def read_docx(filepath: Union[str, Any]) -> str:
     """Read a docx file and return a string."""
     doc = docx.Document(filepath)
 
@@ -92,7 +92,7 @@ def read_docx(filepath: str) -> str:
     return out_str
 
 
-def dump_output(markdown: str, bot_name: str, version: str) -> None:
+def dump_output(markdown: str, bot_name: str, version: str) -> Tuple[str, str]:
     """Dump output to markdown and pdf."""
     prev_versions = glob.glob("./output/md/v0-*.md")
     name = f"v0-{bot_name}-{len(prev_versions)}"
@@ -100,3 +100,5 @@ def dump_output(markdown: str, bot_name: str, version: str) -> None:
         f.write(markdown)
 
     subprocess.run(["mdpdf", "-o", f"./output/pdf/{name}.pdf", f"./output/md/{name}.md"])
+
+    return f"./output/md/{name}.md", f"./output/pdf/{name}.pdf"

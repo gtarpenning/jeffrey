@@ -67,10 +67,10 @@ questionare_prompt = """
 """
 
 
-def robot_large():
+def robot_large(file_path: Any):
     bot = OpenAIWrapper(model_name = ChatModel.GPT_35_TURBO_16K_PINNED, disable_wandb=True)
 
-    intake_form = read_docx("./sample/question_2023-09-04.docx")
+    intake_form = read_docx(file_path)[:2000]
     header_form, intake_form = intake_form.split("111-111-1111")
     header_form += "111-111-1111"
     intake_form = "\n" + intake_form
@@ -94,11 +94,13 @@ def robot_large():
     markdown_str += "\n"
     markdown_str += JEFFREY_SIGNATURE
 
-    dump_output(markdown_str, bot.model_name.value, version="v0")
+    md, pdf = dump_output(markdown_str, bot.model_name.value, version="v0")
+
+    return md, pdf
 
 
 def main():
-    robot_large()
+    robot_large("./sample/question_2023-09-04.docx")
 
 
 if __name__ == "__main__":
