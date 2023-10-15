@@ -70,7 +70,7 @@ questionare_prompt = """
 def robot_large(file_path: Any):
     bot = OpenAIWrapper(model_name = ChatModel.GPT_35_TURBO_16K_PINNED, disable_wandb=True)
 
-    intake_form = read_docx(file_path)[:2000]
+    intake_form = read_docx(file_path)
     header_form, intake_form = intake_form.split("111-111-1111")
     header_form += "111-111-1111"
     intake_form = "\n" + intake_form
