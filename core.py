@@ -89,7 +89,25 @@ class OpenAIWrapper:
         if not disable_wandb:
             autolog({"project": wandb_project})
 
+    def call_chatgpt_stream(self, messages: List[Dict[str, str]], include_history: bool = False) -> Any:
+        model_args = {
+            "model": self.model_name.value,
+            "stream": True,
+            "messages": messages,
+            "temperature": self.model_temperature,
+            # Positive values penalize new tokens based on whether they appear in the text so far
+            "presence_penalty": self.model_presence_penalty,
+            # Positive values penalize new tokens based on their existing frequency in the text
+            "frequency_penalty": self.model_frequency_penalty
+        }
+
+        stream = openai.ChatCompletion.create(**model_args)
+
+        return stream
+
+
     def call_chatgpt(self, messages: List[Dict[str, str]], include_history: bool = False) -> ChatResponse:
+        assert not self.stream, "Cannot call_chatgpt with stream=True"
         if include_history:
             messages = self.history + messages
 
