@@ -105,11 +105,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-# TODO:
-# - basic mvp functionality
-# - basic mvp streamlit frontend
-# - allow streaming, and canceling
-# - allow for multiple models

@@ -71,11 +71,6 @@ def get_openai_key() -> str | None:
         for line in secrets.split("\n"):
             if OPENAI_ENV_KEY in line:
                 key = line.split(f"{OPENAI_ENV_KEY}=")[1].replace("\"", "")
-    else:
-        # user has key, dump it to secrets for longterm storage
-        if '.secrets' not in os.listdir(user_path):
-            with open(f"{user_path}/.secrets", "w") as f:
-                f.write(f"{OPENAI_ENV_KEY}={key}")
     return key
 
 
