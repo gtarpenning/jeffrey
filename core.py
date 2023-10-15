@@ -9,6 +9,7 @@ import openai
 import wandb
 from wandb.integration.openai import autolog
 
+
 from utils import *
 
 INTERNAL_VERSION: str = "v0"

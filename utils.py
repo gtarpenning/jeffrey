@@ -6,7 +6,9 @@ import docx
 import tiktoken
 import glob
 import subprocess
+import logging
 
+import streamlit as st
 
 OPENAI_ENV_KEY = "OPENAI_API_KEY"
 
@@ -62,6 +64,12 @@ def num_tokens_from_string(message: str, encoding_name: str = "cl100k_base") -> 
     return num_tokens
 
 def get_openai_key() -> str | None:
+    """Get the openai key from the environment."""
+    # check if in deployed environment, grab from streamlit
+    if OPENAI_ENV_KEY in st.secrets:
+        logging.log(logging.INFO, "Using openai streamlit secret")
+        return st.secrets[OPENAI_ENV_KEY]
+
     key = os.environ.get(OPENAI_ENV_KEY)
     user_path = os.path.expanduser('~')
     if not key:
