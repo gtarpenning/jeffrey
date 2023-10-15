@@ -1,4 +1,4 @@
 streamlit
 openai
 wandb
-docx
+python-docx
