@@ -15,6 +15,8 @@ file = st.file_uploader('Upload a questionaire', type=['docx', 'txt', 'md'])
 if file:
     st.write('File uploaded successfully!')
 
+    test = st.checkbox('Test mode')
+
     start = st.button('Start processing')
     if start:
         st.write('Processing...')
@@ -23,14 +25,14 @@ if file:
         # for percent_complete in range(100):
         #     my_bar.progress(percent_complete + 1, text='Processing...')
 
-        markdown_str = robot_large(file)
+        markdown_str = robot_large(file, test=test)
 
         st.write('Processing complete!')
         st.write('Markdown preview:')
         st.markdown(markdown_str)
 
         os.makedirs('./output/md', exist_ok=True)
-        n = random.random()*100000
+        n = round(random.random()*1000000)
         name = f"{file.name.split('.')[0]}-{n}"
         with open(f"./output/md/{name}.md", "w") as f:
             f.write(markdown_str)
