@@ -66,7 +66,7 @@ def num_tokens_from_string(message: str, encoding_name: str = "cl100k_base") -> 
 def get_openai_key() -> Union[str, None]:
     """Get the openai key from the environment."""
     # check if in deployed environment, grab from streamlit
-    if OPENAI_ENV_KEY in st.secrets:
+    if st.secrets and OPENAI_ENV_KEY in st.secrets:
         logging.log(logging.INFO, "Using openai streamlit secret")
         return st.secrets[OPENAI_ENV_KEY]
 

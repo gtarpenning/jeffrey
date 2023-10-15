@@ -73,7 +73,7 @@ def robot_large(file_path: Any):
     intake_form = read_docx(file_path)
     header_form, intake_form = intake_form.split("111-111-1111")
     header_form += "111-111-1111"
-    intake_form = "\n" + intake_form
+    intake_form = "\n" + intake_form[:300]
 
     markdown_str = ""
 
@@ -94,9 +94,7 @@ def robot_large(file_path: Any):
     markdown_str += "\n"
     markdown_str += JEFFREY_SIGNATURE
 
-    md, pdf = dump_output(markdown_str, bot.model_name.value, version="v0")
-
-    return md, pdf
+    return markdown_str
 
 
 def main():

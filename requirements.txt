@@ -3,3 +3,4 @@ openai
 wandb
 python-docx
 tiktoken
+mdpdf
