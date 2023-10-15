@@ -76,8 +76,7 @@ class OpenAIWrapper:
         self.model_name: ChatModel = model_name
         self.model_temperature: float = model_temperature
         self.max_tokens: Optional[int] = None
-        # -0.1 should encourage conformity to context (?)
-        self.model_presence_penalty: float = -0.1
+        self.model_presence_penalty: float = 0.0
         self.model_frequency_penalty: float = 0.0
 
         # log of previous messages
