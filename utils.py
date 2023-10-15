@@ -63,7 +63,7 @@ def num_tokens_from_string(message: str, encoding_name: str = "cl100k_base") -> 
 
     return num_tokens
 
-def get_openai_key() -> str | None:
+def get_openai_key() -> Union[str, None]:
     """Get the openai key from the environment."""
     # check if in deployed environment, grab from streamlit
     if OPENAI_ENV_KEY in st.secrets:
