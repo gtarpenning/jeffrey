@@ -19,9 +19,6 @@ if file:
     test = st.checkbox('Test mode')
     start = st.button('Start processing')
     if start:
-        # header_bar = st.progress(0, text='Processing report header...')
-        # for percent_complete in range(100):
-        #     header_bar.progress(percent_complete + 1, text='Processing...')
 
         with st.expander(label="Report", expanded=True):
             bot = OpenAIWrapper(model_name=ChatModel.GPT_35_TURBO_16K_PINNED, disable_wandb=True)
@@ -43,13 +40,12 @@ if file:
                 msg = chunk["choices"][0]["delta"].get("content")
                 if msg:
                     markdown_str += msg.replace("$", "\$")
-                stream_text.markdown(markdown_str)
+                stream_text.write(markdown_str)
 
             markdown_str += "\n"
             # then make the report body:
             question_messages=[
-                {"role": "system", "content": "Patient demographic info:"},
-                {"role": "user", "content": markdown_str},
+                {"role": "system", "content": f"Patient demographic info: {markdown_str}"},
                 {"role": "system", "content": jeff.questionare_prompt},
                 {"role": "user", "content": intake_form}
             ]
@@ -57,7 +53,7 @@ if file:
                 msg = chunk["choices"][0]["delta"].get("content")
                 if msg:
                     markdown_str += msg.replace("$", "\$")
-                stream_text.markdown(markdown_str)
+                stream_text.write(markdown_str)
 
         st.write('Processing complete!')
         os.makedirs('./output/md', exist_ok=True)
