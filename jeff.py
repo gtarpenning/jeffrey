@@ -10,35 +10,65 @@ import glob
 import subprocess
 
 
+JEFFREY_SIGNATURE = """
+```
+Report created by Jeffrey-v0 and ChatGPT. Jeffrey-v0 is a psychiatrist assistant that can help you write psychiatric patient reports from intake forms.
+```
+"""
+
+
 header_prompt = """
-    You are a psychiatrist assistant. The following is a properly formatted header for a patient report. \
+    The following is a properly formatted header for a patient report. \
 
-    "Psychiatric History Form
+    # Psychiatric History Form
 
-    Demographic Information
+    ## Demographic Information
 
-    First name Last name is a NaN-year-old, divorced, Caucasian, other, East Indian, female.
-    Who goes by a preferred pronoun of she/her/hers.
-    Person@people.com
-    111-111-1111"
+    William Jeffery is a 45-year-old, divorced, Caucasian, other, East Indian, male.
+
+    Who goes by a preferred pronoun of he/him/his.
+
+    <Person@people.com>
+
+    <111-111-1111>
 
     \n
-    Now, take the following information and write only the header, in this style, using Markdown to format:
+    Now, take the following information and write a header, in this style, using Markdown to format:
     \n
 """
 
 
-prompt = """
-    Accurately construct sections of a psychiatric patient report, based on the provided questionaire.
-    Write relevant section paragraphs, with formatted headers, retaining as much information as possible.
-    Use Markdown for formatting the report. Quote when appropriate. You MUST use full sentences. Do not
-    include questions in the report. Patient questionaire:
+questionare_prompt = """
+    Based on the provided questionaire, convert the question answer format into a report format.
+    - Write in 3rd person. Use the patient's name.
+    - Write in full paragraphs, with section headers for major sections.
+    - Use Markdown for formatting the report.
+    - Quote from the answer when appropriate.
+    - Do not include questions, bullet points, or ":" in the report.
+    - Retain as much information as possible from the questionaire.
+
+    Example Section from a sample report:
+
+    ## Medical History
+
+    Mr. Jeffery reported that he suffers from hypertension as well as gastroesophageal reflux. \
+    In February 2022, he injured his hand. He stated that this injury was due to repetitive motions, \
+    but also explained, “It was smashed against a wall with a hand truck.” He denied experiencing any \
+    anxiety, depressive, or other psychiatric symptoms regarding his hand injury. He was initially \
+    placed on light duty, but was later placed on medical leave for two months. He stated that he has \
+    been attending his physical therapy sessions and is hopeful that his hand will recover and he can \
+    return to work. Mr. Jeffery stated that he also underwent a transurethral prostate laser procedure and removal \
+    of a mass in his parotid gland in the past, but explained that neither of these were cancer related. \
+    He does not know the dates of these procedures.
+
+
+    Questionaire:
     \n\n
 """
 
 
-def robot_psychiatrist():
-    bot = OpenAIWrapper(model_name = ChatModel.GPT_35_TURBO, disable_wandb=False)
+def robot_large():
+    bot = OpenAIWrapper(model_name = ChatModel.GPT_35_TURBO_16K_PINNED, disable_wandb=True)
 
     intake_form = read_docx("./sample/question_2023-09-04.docx")
     header_form, intake_form = intake_form.split("111-111-1111")
@@ -47,63 +77,37 @@ def robot_psychiatrist():
 
     markdown_str = ""
 
-    # construct header from intake form
+    # construct header from intake form first section
     r = bot.call_chatgpt(messages=[
         {"role": "system", "content": header_prompt},
         {"role": "user", "content": header_form}
     ])
-    markdown_str += r.message + "\n"
+    markdown_str += r.message + "\n\n"
 
-    prompt_tokens = num_tokens_from_string(prompt)
-    intake_tokens = num_tokens_from_string(intake_form)
-    print("prompt tokens: ", prompt_tokens)
-    print("intake tokens: ", intake_tokens)
+    # construct report from intake form
+    r = bot.call_chatgpt(messages=[
+        {"role": "system", "content": questionare_prompt},
+        {"role": "user", "content": intake_form}
+    ])
 
-    # split the intake form into chunks CHEATING
-    # TODO(gst): make agnostic to intake form
-    chunks = []
-    seperators = [
-        "Current Employer (If Different Than Above)",
-        "GAD-7",
-        "Current Treatment",
-        "Substance Use",
-        "Relationship History",
-        "Social History",
-    ]
-
-    for sep in seperators:
-        chunks += [sep + intake_form.split(sep)[0]]
-        intake_form = intake_form.split(sep)[1]
-
-    # todo(gst): make concurrent calls to chatgpt
-
-    # iterate through chunks and launch async processes to call_chatgpt
-    for i, chunk in enumerate(chunks + [intake_form]):
-        print(f"chunk {i}/{len(chunks) + 1} tokens: ", num_tokens_from_string(chunk))
-        r = bot.call_chatgpt(messages=[
-            {"role": "system", "content": prompt},
-            {"role": "user", "content": chunk}
-        ])
-        markdown_str += r.message + "\n"
+    markdown_str += r.message
+    markdown_str += "\n"
+    markdown_str += JEFFREY_SIGNATURE
 
     dump_output(markdown_str, bot.model_name.value, version="v0")
 
 
-def robot_large():
-    bot = OpenAIWrapper(model_name = ChatModel.GPT_35_TURBO_16K_PINNED, disable_wandb=True)
-
-    intake_form = read_docx("./sample/question_2023-09-04.docx")
-    r = bot.call_chatgpt(messages=[
-        {"role": "system", "content": prompt},
-        {"role": "user", "content": intake_form}
-    ])
-
-    dump_output(r.message, bot.model_name.value, version="v0")
-
 def main():
-    # robot_psychiatrist()
     robot_large()
 
 
 if __name__ == "__main__":
     main()
+
+
+
+# TODO:
+# - basic mvp functionality
+# - basic mvp streamlit frontend
+# - allow streaming, and canceling
+# - allow for multiple models

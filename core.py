@@ -3,6 +3,8 @@ import random
 import argparse
 from typing import Any, List, Dict, Union, Optional
 
+from datetime import datetime
+
 import openai
 import wandb
 from wandb.integration.openai import autolog
@@ -103,11 +105,19 @@ class OpenAIWrapper:
         if self.max_tokens:
             model_args["max_tokens"] = self.max_tokens
 
-        print(f"[calling chatgpt, model: {self.model_name.value}]")
+        print(f"[Calling chatgpt, model: {self.model_name.value}]")
+        t = sum([num_tokens_from_string(x['content']) for x in messages])
+        low_bound = round(t/50 / 60, 2)
+        high_bound = round(t/25 / 60, 2)
+        print(f"[Total tokens: {t}, ETA (m): {low_bound}-{high_bound}]")
 
+        now = datetime.now()
         completion = openai.ChatCompletion.create(**model_args)
+        elapsed = datetime.now() - now
         response = ChatResponse(completion)
         self.history += messages + [response.message]
+
+        print(f"[Time elapsed: {elapsed}, tokens/s: {round(response.tokens / elapsed.total_seconds(), 3)}]")
         response.print_cost_breakdown()
 
         return response
