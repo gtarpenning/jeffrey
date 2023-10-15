@@ -103,11 +103,11 @@ class OpenAIWrapper:
         if self.max_tokens:
             model_args["max_tokens"] = self.max_tokens
 
-        response = ChatResponse(openai.ChatCompletion.create(**model_args))
-
-        self.history += messages + [response.message]
-
         print(f"[calling chatgpt, model: {self.model_name.value}]")
+
+        completion = openai.ChatCompletion.create(**model_args)
+        response = ChatResponse(completion)
+        self.history += messages + [response.message]
         response.print_cost_breakdown()
 
         return response

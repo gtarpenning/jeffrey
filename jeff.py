@@ -9,7 +9,6 @@ import random
 import glob
 import subprocess
 
-MAX_TOKENS = 4097
 
 header_prompt = """
     You are a psychiatrist assistant. The following is a properly formatted header for a patient report. \
@@ -30,10 +29,10 @@ header_prompt = """
 
 
 prompt = """
-    Accurately construct sections of a psychiatric patient report, based on the provided information.
+    Accurately construct sections of a psychiatric patient report, based on the provided questionaire.
     Write relevant section paragraphs, with formatted headers, retaining as much information as possible.
     Use Markdown for formatting the report. Quote when appropriate. You MUST use full sentences. Do not
-    include questions in the report. Patient information:
+    include questions in the report. Patient questionaire:
     \n\n
 """
 
@@ -87,27 +86,23 @@ def robot_psychiatrist():
         ])
         markdown_str += r.message + "\n"
 
-    prev_versions = glob.glob("./output/md/v0-*.md")
-    name = f"v0-{bot.model_name.value}-{len(prev_versions)}"
-    with open(f"./output/md/{name}.md", "w") as f:
-        f.write(markdown_str)
-
-    subprocess.run(["mdpdf", "-o", f"./output/pdf/{name}.pdf", f"./output/md/{name}.md"])
+    dump_output(markdown_str, bot.model_name.value, version="v0")
 
 
-def make_async_calls_to_chatgpt(text_list: List[str], bot: OpenAIWrapper):
-    from multiprocessing import Process,Queue
-    """Take a list of strings, and make calls to chatgpt using a process pool"""
-    queue = Queue()
-    p = Process(target=bot.call_chatgpt, args=(queue, 1))
-    p.start()
-    p.join()
-    retult = queue.get()
-    return result
+def robot_large():
+    bot = OpenAIWrapper(model_name = ChatModel.GPT_35_TURBO_16K_PINNED, disable_wandb=True)
 
+    intake_form = read_docx("./sample/question_2023-09-04.docx")
+    r = bot.call_chatgpt(messages=[
+        {"role": "system", "content": prompt},
+        {"role": "user", "content": intake_form}
+    ])
+
+    dump_output(r.message, bot.model_name.value, version="v0")
 
 def main():
-    robot_psychiatrist()
+    # robot_psychiatrist()
+    robot_large()
 
 
 if __name__ == "__main__":

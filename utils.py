@@ -6,6 +6,8 @@ import docx
 from simplify_docx import simplify
 
 import tiktoken
+import glob
+import subprocess
 
 
 OPENAI_ENV_KEY = "OPENAI_API_KEY"
@@ -14,6 +16,9 @@ OPENAI_ENV_KEY = "OPENAI_API_KEY"
 class ChatModel(Enum):
     GPT_35_TURBO = "gpt-3.5-turbo"
     GPT_35_TURBO_PINNED = "gpt-3.5-turbo-0613"
+    # the normal 16k model returns the pinned version response, just use that
+    # GPT_35_TURBO_16K = "gpt-3.5-turbo-16k"
+    GPT_35_TURBO_16K_PINNED = "gpt-3.5-turbo-16k-0613"
     GPT_4 = "gpt-4"
 
 
@@ -35,7 +40,7 @@ def make_cost_breakdown(
     }
     """
     # gpt-3.5
-    if model_name in [ChatModel.GPT_35_TURBO, ChatModel.GPT_35_TURBO_PINNED]:
+    if model_name in [ChatModel.GPT_35_TURBO, ChatModel.GPT_35_TURBO_PINNED, ChatModel.GPT_35_TURBO_16K_PINNED]:
         cost_per_input_token: float = 0.0015 / 1000
         cost_per_output_token: float = 0.002 / 1000
     # gpt-4
@@ -85,3 +90,13 @@ def read_docx(filepath: str) -> str:
         out_str += paragraph.text + "\n"
 
     return out_str
+
+
+def dump_output(markdown: str, bot_name: str, version: str) -> None:
+    """Dump output to markdown and pdf."""
+    prev_versions = glob.glob("./output/md/v0-*.md")
+    name = f"v0-{bot_name}-{len(prev_versions)}"
+    with open(f"./output/md/{name}.md", "w") as f:
+        f.write(markdown)
+
+    subprocess.run(["mdpdf", "-o", f"./output/pdf/{name}.pdf", f"./output/md/{name}.md"])
