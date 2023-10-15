@@ -3,8 +3,6 @@ from enum import Enum
 from typing import Dict, Any, Tuple, Union
 
 import docx
-from simplify_docx import simplify
-
 import tiktoken
 import glob
 import subprocess
