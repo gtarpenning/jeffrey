@@ -19,10 +19,12 @@ if file:
     test = st.checkbox('Test mode')
     start = st.button('Start processing')
     if start:
-
         with st.expander(label="Report", expanded=True):
             bot = OpenAIWrapper(model_name=ChatModel.GPT_35_TURBO_16K_PINNED, disable_wandb=True)
             file_contents = read_docx(file)
+
+            if test:
+                file_contents = file_contents[:1000]
 
             markdown_str = "# Psychiatric History Report\n"
             stream_text = st.empty()
